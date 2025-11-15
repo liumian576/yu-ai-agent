@@ -16,24 +16,38 @@ import com.alibaba.dashscope.utils.JsonUtils;
  */
 public class SdkAiInvoke {
 
+/**
+ * 调用生成接口并返回结果的方法
+ * 该方法使用预设的系统消息和用户消息来调用AI模型生成内容
+ *
+ * @return GenerationResult 包含模型生成结果的对象
+ * @throws ApiException 当API调用出现问题时抛出
+ * @throws NoApiKeyException 当没有提供API密钥时抛出
+ * @throws InputRequiredException 当缺少必要输入参数时抛出
+ */
     public static GenerationResult callWithMessage() throws ApiException, NoApiKeyException, InputRequiredException {
+    // 创建Generation实例，用于调用AI模型
         Generation gen = new Generation();
+    // 构建系统消息，设置AI助手的角色和初始提示
         Message systemMsg = Message.builder()
-                .role(Role.SYSTEM.getValue())
-                .content("You are a helpful assistant.")
+                .role(Role.SYSTEM.getValue())  // 设置消息角色为系统
+                .content("You are a helpful assistant.")  // 系统提示内容
                 .build();
+    // 构建用户消息，包含用户的具体请求内容
         Message userMsg = Message.builder()
-                .role(Role.USER.getValue())
-                .content("你好，我是程序员鱼皮，正在带大家开发编程导航 codefather.cn 最新的原创项目 - AI 超级智能体")
+                .role(Role.USER.getValue())  // 设置消息角色为用户
+                .content("你好，我是程序员鱼皮，正在带大家开发编程导航 codefather.cn 最新的原创项目 - AI 超级智能体")  // 用户输入内容
                 .build();
+    // 构建生成参数，配置API调用的各项设置
         GenerationParam param = GenerationParam.builder()
                 // 若没有配置环境变量，请用百炼API Key将下行替换为：.apiKey("sk-xxx")
-                .apiKey(TestApiKey.API_KEY)
+                .apiKey(TestApiKey.API_KEY)  // 设置API密钥
                 // 此处以qwen-plus为例，可按需更换模型名称。模型列表：https://help.aliyun.com/zh/model-studio/getting-started/models
-                .model("qwen-plus")
-                .messages(Arrays.asList(systemMsg, userMsg))
-                .resultFormat(GenerationParam.ResultFormat.MESSAGE)
+                .model("qwen-plus")  // 指定使用的AI模型
+                .messages(Arrays.asList(systemMsg, userMsg))  // 设置消息列表，包含系统消息和用户消息
+                .resultFormat(GenerationParam.ResultFormat.MESSAGE)  // 设置返回结果的格式为消息格式
                 .build();
+    // 调用API并返回结果
         return gen.call(param);
     }
 

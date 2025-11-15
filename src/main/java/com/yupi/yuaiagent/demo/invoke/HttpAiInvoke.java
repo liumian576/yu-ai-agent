@@ -9,8 +9,12 @@ import cn.hutool.json.JSONUtil;
  */
 public class HttpAiInvoke {
 
+/**
+ * 主方法，用于演示如何调用通义千问API进行文本生成
+ * @param args 命令行参数（未使用）
+ */
     public static void main(String[] args) {
-        // API密钥
+        // API密钥，从TestApiKey类中获取
         String apiKey = TestApiKey.API_KEY;
 
         // 构建请求URL

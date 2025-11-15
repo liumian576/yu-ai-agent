@@ -15,13 +15,14 @@ import org.springframework.stereotype.Component;
 public class SpringAiAiInvoke implements CommandLineRunner {
 
     @Resource
-    private ChatModel dashscopeChatModel;
+    private ChatModel dashscopeChatModel; // 注入阿里云 Dashscope 的 ChatModel 实例
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) throws Exception { // 实现 CommandLineRunner 接口的 run 方法，在项目启动时执行
+        // 创建提示并调用阿里云大模型，获取 AI 回复
         AssistantMessage assistantMessage = dashscopeChatModel.call(new Prompt("你好，我是鱼皮"))
-                .getResult()
-                .getOutput();
-        System.out.println(assistantMessage.getText());
+                .getResult() // 获取调用结果
+                .getOutput(); // 获取输出内容
+        System.out.println(assistantMessage.getText()); // 打印 AI 回复的文本内容
     }
 }
