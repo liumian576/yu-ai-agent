@@ -3,13 +3,21 @@ package com.yupi.yuaiagent.app;
 
 import com.yupi.yuaiagent.advisor.MyLoggerAdvisor;
 import com.yupi.yuaiagent.chatmemory.FileBasedChatMemory;
+import com.yupi.yuaiagent.rag.LoveAppRagCustomAdvisorFactory;
+import com.yupi.yuaiagent.rag.PgVectorVectorStoreConfig;
+import com.yupi.yuaiagent.rag.QueryRewriter;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
+import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -104,5 +112,80 @@ public class LoveApp {
         log.info("loveReport: {}", loveReport);
         return loveReport;  // 返回恋爱报告
     }
+
+    // 被注释掉的VectorStore资源注入
+    @Resource
+    private VectorStore loveAppVectorStore;
+
+    @Resource  // 使用@Resource注解注入RAG云顾问
+    private Advisor loveAppRagCloudAdvisor;
+
+    @Resource  // 使用@Resource注解注入向量存储配置顾问
+    private VectorStore pgVectorVectorStore;
+    @Resource
+    private QueryRewriter queryRewriter;
+
+/**
+ * 执行基于RAG(检索增强生成)的聊天对话
+ * @param message 用户输入的消息内容
+ * @param chatId 聊天会话ID，用于区分不同的对话上下文
+ * @return AI助手的回复内容
+ */
+    /**
+     * 和 RAG 知识库进行对话
+     *
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public String doChatWithRag(String message, String chatId) {
+        // 查询重写
+        String rewrittenMessage = queryRewriter.doQueryRewrite(message);
+        ChatResponse chatResponse = chatClient
+                .prompt()
+                // 使用改写后的查询
+                .user(rewrittenMessage)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                // 开启日志，便于观察效果
+                .advisors(new MyLoggerAdvisor())
+                // // 应用 RAG 知识库问答
+               //  .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+               //  // 应用 RAG 检索增强服务（基于云知识库服务）
+               // .advisors(loveAppRagCloudAdvisor)
+               //  // 应用 RAG 检索增强服务（基于 PgVector 向量存储）
+               // .advisors(new QuestionAnswerAdvisor(pgVectorVectorStore))
+               //  // 应用自定义的 RAG 检索增强服务（文档查询器 + 上下文增强器）
+               // .advisors(
+               //         LoveAppRagCustomAdvisorFactory.createLoveAppRagCustomAdvisor(
+               //                 loveAppVectorStore, "单身"
+               //         )
+               // )
+                .call()
+                .chatResponse();
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("content: {}", content);
+        return content;
+    }
+
+    @Resource
+    private ToolCallback[] allTools;
+
+    public String doChatWithTools(String message, String chatId) {
+        ChatResponse response = chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+
+                .advisors(new MyLoggerAdvisor())
+                .tools(allTools)
+                .call()
+                .chatResponse();
+        String content = response.getResult().getOutput().getText();
+        log.info("content: {}", content);
+        return content;
+    }
+
 
 }

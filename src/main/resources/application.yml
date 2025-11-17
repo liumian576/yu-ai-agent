@@ -5,9 +5,9 @@ spring:
     active: local
 # 临时注释掉，便于大家开发调试和部署（实际填写 PgVector 数据库信息）
 #  datasource:
-#    url: xxx
-#    username: root
-#    password: 123456
+#    url: jdbc:postgresql://rm-cn-u1p4izpfe0007fso.rwlb.rds.aliyuncs.com/yu_ai_agent
+#    username: my_user
+#    password: ljx0810@
   ai:
     dashscope:
       # 需要替换为你自己的 key
