@@ -41,7 +41,6 @@ public class MyLoggerAdvisor implements CallAroundAdvisor, StreamAroundAdvisor {
         return request;
     }
 
-/*******************    💫 Codegeex Suggestion    *******************/
     /**
      * 在调用后处理响应，记录响应日志
      * @param advisedResponse 响应对象
@@ -49,7 +48,6 @@ public class MyLoggerAdvisor implements CallAroundAdvisor, StreamAroundAdvisor {
     private void observeAfter(AdvisedResponse advisedResponse) {
         log.info("AI Response: {}", advisedResponse.response().getResult().getOutput().getText());
     }
-/****************  661d6303a6444a05a02b2c2b961cbcc3  ****************/
 
     /**
      * 处理普通调用的环绕通知

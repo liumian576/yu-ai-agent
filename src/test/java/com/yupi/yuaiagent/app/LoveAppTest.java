@@ -71,7 +71,7 @@ class LoveAppTest {
         String answer = loveApp.doChatWithTools(message, chatId);
         Assertions.assertNotNull(answer);
     }
-//
+// //
 //     @Test
 //     void doChatWithMcp() {
 //         String chatId = UUID.randomUUID().toString();
